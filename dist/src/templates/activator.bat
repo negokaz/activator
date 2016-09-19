@@ -68,6 +68,20 @@ FOR /F "tokens=* eol=# usebackq delims=" %%i IN ("%FN%") DO (
   set CFG_OPTS=!CFG_OPTS! !DO_NOT_REUSE_ME!
 )
 
+rem FIRST we load a project-level config file of extra options (if there is one)
+set "SBT_OPTS_FILE=.sbtopts"
+  if exist %SBT_OPTS_FILE% (
+    FOR /F "tokens=* eol=# usebackq delims=" %%i IN ("%SBT_OPTS_FILE%") DO (
+      set DO_NOT_REUSE_ME=%%i
+      rem ZOMG (Part #2) WE use !! here to delay the expansion of
+      rem CFG_OPTS, otherwise it remains "" for this loop.
+    	if "!DO_NOT_REUSE_ME:~0,2!"=="-J" (
+          set CFG_OPTS=!CFG_OPTS! !DO_NOT_REUSE_ME:~2!
+    	)
+    )
+  )
+)
+
 rem FIRST we load a config file of extra options (if there is one)
 set "CFG_FILE_HOME=%UserProfile%\.activator\activatorconfig.txt"
 set "CFG_FILE_VERSION=%UserProfile%\.activator\%APP_VERSION%\activatorconfig.txt"
